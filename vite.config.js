@@ -10,7 +10,15 @@ export default defineConfig(({ command }) => {
       [command === 'serve' ? 'global' : '_global']: {},
     },
     root: 'src',
+
+    optimizeDeps: {
+      include: ['simplelightbox/dist/simple-lightbox.esm.js'],
+    },
+
     build: {
+      commonjsOptions: {
+        include: [/simplelightbox/, /node_modules/],
+      },
       sourcemap: true,
       rollupOptions: {
         input: glob.sync('./src/*.html'),
@@ -37,6 +45,7 @@ export default defineConfig(({ command }) => {
       outDir: '../dist',
       emptyOutDir: true,
     },
+
     plugins: [
       injectHTML(),
       FullReload(['./src/**/**.html']),
