@@ -1,34 +1,48 @@
-const formData = {
-  email: '',
-  message: '',
-};
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const getFormEl = document.querySelector('.feedback-form');
+const { email, message } = getFormEl.elements;
+const STORAGE_KEY = 'feedback-form-state';
+
 getFormEl.addEventListener('input', handlerFormHelper);
 getFormEl.addEventListener('submit', handlerFormSubmit);
 
-const { email, message } = getFormEl.elements;
-email.value =
-  JSON.parse(localStorage.getItem('feedback-form-state')).email ?? '';
-message.value =
-  JSON.parse(localStorage.getItem('feedback-form-state')).message ?? '';
+const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {};
+
+const formData = {
+  email: savedData.email ?? '',
+  message: savedData.message ?? '',
+};
+
+email.value = formData.email;
+message.value = formData.message;
+
+function handlerFormHelper(event) {
+  const { name, value } = event.target;
+  if (!name) {
+    return;
+  }
+  formData[name] = value.trim();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+}
 
 function handlerFormSubmit(event) {
   event.preventDefault();
   if (email.value.trim() === '' || message.value.trim() === '') {
-    alert('Заповніть усі поля!');
+    iziToast.show({
+      message: 'Заповніть усі поля!',
+      position: `topRight`,
+      color: `red`,
+    });
     return;
   }
-  localStorage.clear();
+  localStorage.removeItem(STORAGE_KEY);
+  console.log(formData);
   getFormEl.reset();
-  alert('Данні успішно відправленні!');
-}
-
-function handlerFormHelper(event) {
-  for (let el in formData) {
-    if (el === event.target.name) {
-      formData[el] = event.target.value.trim();
-      localStorage.setItem('feedback-form-state', JSON.stringify(formData));
-    }
-  }
+  iziToast.show({
+    message: `Дані успішно відправлені!`,
+    position: `topRight`,
+    color: `green`,
+  });
 }
